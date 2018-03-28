@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>留言板</title>
+	<link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+	<script src="http://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+	<script src="http://cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.0/jquery-confirm.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.0/jquery-confirm.min.js"></script>
+	<style type="text/css">
+		.mform .row{margin:0 auto;padding:10px;}
+		.btn-default,.msg span{color:#d43636;;} 
+		.s{background-color:#d43636;color:white;}
+	</style>
+	<script type="text/javascript">
+
+		$(function(){
+			$('.s').click(
+					function(){
+						
+						var name=$("input[name='name']").val();
+						var phone=$("input[name='phone']").val();
+						var contact=$("input[name='contact']").val();
+						var addr=$("input[name='ADDR']").val();
+						var content=$("input[name='content']").val();
+						var id=getUrlParam('id');
+						
+						function getUrlParam(name){  
+							var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");  
+							var r = window.location.search.substr(1).match(reg);  
+							if (r!=null) return unescape(r[2]);  
+							return null;  
+						}  
+						var myreg=/^[1][3,4,5,7,8][0-9]{9}$/;
+						if(!myreg.test(phone)){
+				            $.alert({
+							    title: '错误提示!',
+							    content: '手机号不正确!',
+							});
+				        }
+						$.ajax({
+								url:"{:url('index/msg')}",
+								dataType:"json",
+								type:'POST',
+								cache:false,
+								data:'id='+id+'&name='+name+'&phone='+phone+'&contact='+contact+'&addr='+addr+'&content='+content,
+								success: function(data) {
+									// $("#content").append(data);
+									// alert(data);
+									location.reload();
+						}
+					}
+				)
+
+		});
+
+		});
+	</script>
+</head>
+<body>
+		<div class="container text-center">
+			<p class="msg">
+				<strong><span>留言获取详</span>细加盟资料</strong>
+				<p>现在填写加盟需求，总部还有神秘大礼相送。</p>
+			</p>
+			<form role="form" class="mform" action="{:url('index/msg')}" method="post">
+				<div class="row">
+					<div class="col-lg-4 col-lg-offset-4">
+						<div class="input-group">
+		              		 <span class="input-group-btn">
+		                  		<label class="btn btn-default" type="button" for="name">
+		                           <span class="glyphicon glyphicon-user"></span>
+		                 	    </label>
+		               		</span>
+		              		 <input type="text" name="name" id="name" class="form-control" placeholder="姓名">
+		           		</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-lg-4 col-lg-offset-4">
+						<div class="input-group">
+		              		 <span class="input-group-btn">
+		                  		<label class="btn btn-default" type="button" for="phone">
+		                           <span class="glyphicon glyphicon-earphone"></span>
+		                 	    </label>
+		               		</span>
+		              		 <input type="text" class="form-control" id="phone" name="phone" placeholder="电话">
+		           		</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-lg-4 col-lg-offset-4">
+						<div class="input-group">
+		              		 <span class="input-group-btn">
+		                  		<label class="btn btn-default" type="button" for="contact">
+		                           <span class="glyphicon glyphicon-envelope"></span>
+		                 	    </label>
+		               		</span>
+		              		 <input type="text" class="form-control" id="contact" name="contact" placeholder="QQ/微信/Email">
+		           		</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-lg-4 col-lg-offset-4">
+						<div class="input-group">
+		              		 <span class="input-group-btn">
+		                  		<label class="btn btn-default" type="button" for="ADDR">
+		                           <span class="glyphicon glyphicon-map-marker"></span>
+		                 	    </label>
+		               		</span>
+		              		 <input type="text" class="form-control" id="ADDR" name="ADDR" placeholder="地址">
+		           		</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-lg-4 col-lg-offset-4">
+						<div class="input-group">
+		              		 <span class="input-group-btn">
+		                  		<label class="btn btn-default" type="button" for="content">
+		                           <span class="glyphicon glyphicon-edit"></span>
+		                 	    </label>
+		               		</span>
+		              		 <input type="text" class="form-control" id="content" name="content" placeholder="留言">
+		           		</div>
+					</div>
+				</div>
+				<div class="row">
+		        	<button type="button" class="s btn btn-default col-md-1 col-md-offset-1 col-lg-offset-5">立即提交</button>
+				</div>
+
+			</form>
+		</div>
+		<div id="content">
+			
+		</div>
+</body>
+</html>

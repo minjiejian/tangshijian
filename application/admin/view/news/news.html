@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>留言列表|{:config('system.title')}</title>
+<link rel="stylesheet" type="text/css" href="__CSS__/content.css"  />
+<link rel="stylesheet" type="text/css" href="__CSS__/public.css"  />
+<link rel="stylesheet" type="text/css" href="__CSS__/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+<script type="text/javascript" src="__JS__/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="__JS__/Public.js"></script>
+<script type="text/javascript" src="__JS__/winpop.js"></script>
+<script type="text/javascript" src="__JS__/check.js"></script>
+<script type="text/javascript" src="__JS__/laydate.js"></script>
+<script type="text/javascript" src="__CSS__/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+<style type="text/css">
+	td a{margin:10px;background:#eee;}
+	#table td{text-align: center;}
+</style>
+<script>
+$(document).ready(function() {
+	//删除
+	$('#content #table .tr .del').click(function(event) {
+		event.preventDefault();
+		if (!confirm('确定要删除该数据吗？')) {
+			return false;
+		}
+		var id=$(this).attr('href').replace(/[^0-9]/ig,"");
+		if (id=='' || isNaN(id)) {
+			wintq('ID参数不正确',3,1000,1,'');
+			return false;
+		}else {
+			wintq('正在删除，请稍后...',4,20000,0,'');
+			$.ajax({
+				url:"{:url('News/newsdel')}",
+				dataType:'json',
+				type:'POST',
+				data:'id='+id,
+				success: function(data) {
+					if (data.s=='ok') {
+						wintq('删除成功',1,1500,1,'?');
+					}else {
+						wintq(data.s,3,1500,1,'');
+					}
+				}
+			});
+		}
+	});
+	//批量删除
+	$('#dely').click(function(event) {
+		event.preventDefault();
+		if (!confirm('确定要删除选择项吗？')) {
+			return false;
+		}
+		var delid='';
+		for (i=0; i<$('#table .delid').length; i++) {
+			if (!$('#table .delid').eq(i).prop('checked')==false) {
+				delid=delid+$('#table .delid').eq(i).val()+',';
+			}
+		}
+		
+		if (delid=='') {
+			wintq('请选中后再操作',2,1500,1,'');
+		}else {
+			wintq('正在删除，请稍后...',4,20000,0,'');
+			$.ajax({
+				url:"{:url('News/newsindel')}",
+				dataType:'JSON',
+				type:'POST',
+				data:'delid='+delid,
+				success: function(data) {
+					if (data.s=='ok') {
+						wintq('删除成功',1,1500,0,'?');
+					}else {
+						wintq(data.s,3,1500,1,'');
+					}
+				}
+			});
+		}
+	});
+});
+function ToUrl(x)   
+{   
+	location.href=x;
+	return false;
+}
+</script>
+<style type="text/css">
+.sub input{background:#038A7C;border:0px;color:white;}
+</style>
+</head>
+<body>
+<div id="content">
+	<h1>首页 > 留言管理 > 留言列表</h1>
+    <h2>
+    	<div class="h2_left">
+        	<a href="{:url()}" class="whole">全部</a>
+        	<a href="javascript:void(0);" class="f5" onclick="f5();">刷新</a>
+            <a href="javascript:void(0);" class="add" onclick='ToUrl("{:url('News/add')}");'>添加</a>
+            <a href="javascript:void(0);" onclick='ToUrl("{:url('News/classindex')}");' class="uclass">分类</a>
+            <a href="javascript:history.back();" class="Retreat">后退</a>
+            <a href="javascript:history.go(1);" class="Advance">前进</a>
+        </div>
+    </h2>
+    <h4>
+    	<a href="javascript:;" class="list">分类筛选：</a>
+    	{volist name="clist" id="vo"}
+        <a class="{if condition="$vo.ID eq $sid"}lista{else /}list{/if}" href="{:url('News/news')}?sid={$vo.ID}">{$vo.ClassName}</a>
+        {/volist}
+    </h4>
+    <form action="{:url('News/news')}?search=1" method="post" style="border-bottom:10px solid #9aa9a714">
+	    <h4>
+	    	<a href="javascript:void(0)" class="list">按时间查找：</a>
+	    	<div class="layui-input-inline">
+	                <input type="text" name="tim" class="layui-input" id="test10" placeholder="请选择时间范围" lay-key="11" style="width:268px">
+	        </div>
+
+	    </h4>
+	    <h4>
+	    	<a href="javascript:void(0)" class="list">按条件查找：</a>
+	    	<select name="sel">
+	    		<option value="">----全部-----</option>
+	    		<option value="name">姓名</option>
+	    		<option value="phone">phone</option>
+	    		<option value="contact">QQ/微信/Email</option>
+	    		<option value="ADDR">地址</option>
+	    	</select>
+	    	<input type="text" name="cond"  style="width:155px" placeholder="支持模糊查找">
+	    </h4>
+	    <div class="sub" style="position:relative;padding-left:419px;top:-65px">
+	    	<input type="submit" value="查找" style="margin-right:20px">
+	    	<input type="submit" onclick="reset()" value="重置">
+	    </div>
+   <!--  <div style="height:40px;background:#038A7C">
+    </div> -->	
+    </form>
+    	<table id="table" cellpadding="0" cellspacing="0" style="margin-top:-24px">
+    		{if condition="$volist.total eq 0"}<tr class="tr"><td class="tc" colspan="13">暂无数据，等待添加～！</td></tr>{/if}
+		{volist name="volist.data" id="vo"}
+    	<tr class="tr">
+    		<th rowspan="4"><input type="checkbox" class="indel" value="del" /></th>
+    		<th>ID:</th>
+    		<td>{$vo.ID}</td>
+    		<th>项目:</th>
+    		<td>{$vo.ClassName}</td>
+    		<th>来源:</th>
+    		<td>{$vo.from}</td>
+    		<th>自定义来源：</th>
+    		<td>网络</td>
+    		<th rowspan="4">留言内容：</th>
+    		<td rowspan="4">{$vo.Content}</td>
+    	</tr>
+    	<tr>
+    		<th>联系人:</th>
+    		<td>{$vo.name}</td>
+    		<th>手机:</th>
+    		<td>{$vo.phone}</td>
+    		<th>电话:</th>
+    		<td></td>
+    		<th>QQ/微信/邮箱：</th>
+    		<td>{$vo.contact}</td>
+    	</tr>
+    	<tr>
+    		<th>时间：</th>
+    		<td>{$vo.Dtime}</td>
+    		<th>地址：</th>
+    		<td>{$vo.ADDR}</td>
+    		<th>关键词</th>
+    		<td>{$vo.keyword}</td>
+
+    		<td colspan="2"></td>
+    	</tr>
+    	<tr>
+    		<th>操作：</th>
+    		<td style="text-align:left"  colspan="3" class="tc fixed_w"><a href="{:url('News/edit')}?id={$vo.ID}" class="edit oper">修改</a><a href="{$vo.ID}" class="del oper">删除</a>{if condition="$vo.status eq 0"}<a href="{:url('News/estatus')}?st=1&id={$vo.ID}" class="edit oper">未读</a>{/if}</td>
+    		<th>来源站点</th><td>{$vo.referrerurl}</td>
+    	</tr>
+    	<tr>
+    		<td style="height:1px" colspan="14"></td>
+    	</tr>	
+    	 {/volist}
+    	
+
+
+    </table>
+
+
+    <div id="page"><a href="javascript:;" class="selbox">全选</a><a href="javascript:;" class="unselbox">全不选</a>&nbsp;&nbsp;对选中项进行&nbsp;&nbsp;<a href="javascript:;" id="dely">删除</a>&nbsp;&nbsp;&nbsp;&nbsp;{:$lists->render()}<a title="导出功能只导出本页数据，如需全部导出请分页执行" href="{:url('News/export')}?ex=1">数据导出excel</a></div>
+</div>
+<script>
+
+laydate.render({
+  elem: '#test10'
+  ,type: 'datetime'
+  ,range: true
+}); 
+</script>
+</body>
+</html>

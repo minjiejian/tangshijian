@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>项目留言统计|{:config('system.title')}</title>
+<link rel="stylesheet" type="text/css" href="__CSS__/content.css"  />
+<link rel="stylesheet" type="text/css" href="__CSS__/public.css"  />
+<script type="text/javascript" src="__JS__/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="__JS__/Public.js"></script>
+<script type="text/javascript" src="__JS__/echarts.min.js"></script>
+<script type="text/javascript" src="__JS__/laydate.js"></script>
+<script>
+
+</script>
+</head>
+<body>
+<div id="content">
+	<h1>首页 > 留言统计 > 项目留言统计</h1>
+    <h2>
+    	<div class="h2_left">
+        	<a href="{:url()}" class="whole">全部</a>
+        	<a href="javascript:;" class="f5" onclick="f5();">刷新</a>
+            <a href="javascript:history.back();" class="Retreat">后退</a>
+            <a href="javascript:history.go(1);" class="Advance">前进</a>
+        </div>
+    </h2>
+    <h2>
+        <form action="{:url('report/pie')}">
+             <strong>请选择时间日期:</strong>
+             <input type="text" name="tim" class="layui-input" id="test10" placeholder="请选择时间范围" lay-key="11" style="width:268px" onsubmit="alert(1)">
+             <input id="submit" type="submit" value="查询">
+        </form>
+    </h2>
+	<div id="main" style="width: 800px;height:600px;margin-top:30px;"></div>
+	<script type="text/javascript">
+		laydate.render({
+          elem: '#test10'
+          ,type: 'datetime'
+          ,range: true
+        }); 
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+        // 指定图表的配置项和数据
+		option = {
+		    title : {
+		        text: '项目留言分类统计',
+		        subtext: '留言数量',
+		        x:'center'
+		    },
+		    tooltip : {
+		        trigger: 'item',
+		        formatter: "{a} <br/>{b} : {c} ({d}%)"
+		    },
+		    legend: {
+		        orient: 'vertical',
+		        left: 'left',
+		        data: {$volist.name}
+		    },
+		    series : [
+		        {
+		            name: '留言分类',
+		            type: 'pie',
+		            radius : '55%',
+		            center: ['50%', '60%'],
+		            data:{$volist.data},
+		            itemStyle: {
+		                emphasis: {
+		                    shadowBlur: 10,
+		                    shadowOffsetX: 0,
+		                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+		                }
+		            }
+		        }
+		    ]
+		};
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    </script>
+</div>
+</body>
+</html>

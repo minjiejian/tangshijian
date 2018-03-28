@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>修改留言内容|{:config('system.title')}</title>
+<link rel="stylesheet" type="text/css" href="__CSS__/content.css"  />
+<link rel="stylesheet" type="text/css" href="__CSS__/public.css"  />
+<script type="text/javascript" src="__JS__/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="__JS__/Public.js"></script>
+<script type="text/javascript" src="__JS__/winpop.js"></script>
+<script type="text/javascript" src="__JS__/check.js"></script>
+
+<script>
+$(document).ready(function() {
+	var $dldd = $('#cdl dd');
+    var obj,length;
+   function test(obj,length){
+        $(obj).keyup(function() {
+            le=$(this).val();
+            if (le.length>length) {
+                $(this).val(le.substr(0,length));
+                $(this).next().children().html(0);
+            }else {
+                $(this).next().children().html(length-le.length);
+            }
+        }); 
+   }
+
+   test('.name',20);
+   test('.phone',11);
+   test('.contact',40);
+   test('.ADDR',35);
+   $('textarea').keyup(function() {
+        le=$(this).val();
+        if (le.length>200) {
+            $(this).val(le.substr(0,200));
+            $(this).next().children().html(0);
+        }else {
+            $(this).parent().next().children().html(200-le.length);
+        }
+    }); 
+
+	$('.submit').click(function() {
+		var 
+			id = $('#cdl input:hidden').val(),
+			sid = $dldd.find('.select').val(),
+            name = $dldd.find('.name').val(),
+            phone = $dldd.find('.phone').val(),
+            ADDR = $dldd.find('.ADDR').val(),
+            contact = $dldd.find('.contact').val(),
+            Content = $dldd.find('.textarea').val();
+			sortid = $dldd.find('.dtext').val();
+			
+
+		
+		if (!tcheck(id,'','ID获取失败')) { return false; }
+		
+		
+		
+		if (!tcheck(sortid,'','请填写排序ID')) { return false; }
+		
+		if (!tcheck(sid,'','分类ID获取失败')) { return false; }
+        if (!tcheck(name,'','请填写姓名')) { return false; }
+        var check=1;
+        if(contact=='' && phone==''){
+           check='';
+        }
+        if (!tcheck(check,'','请填写【手机号】或者【QQ/邮箱/微信】！')) { return false; }
+        var myreg=/^1[345678]\d{9}$/;
+        if(!myreg.test(phone)){
+            pcheck='';
+        }
+        if(contact!=='' && phone!==''){
+            pcheck=1;
+            if(!myreg.test(phone)){
+                pcheck='';
+            }
+            //校验contact输入信息
+        }
+        if( phone ==''&& contact!==''){
+            pcheck=2;
+        }
+        if (!tcheck(pcheck,'','手机号非法！请重新填写')) { return false; }
+        if (!tcheck(sortid,'number','排序ID必须是数字')) { return false; }
+        if (!tcheck(Content,'0,200','描述请在200个字符以内','length')) { return false; }
+        wintq('正在处理，请稍后...',4,20000,0,'');
+        $('form').submit();
+	});
+});
+function ToUrl(x)   
+{   
+	location.href=x;
+	return false;
+}
+</script>
+</head>
+<body>
+<div id="content">
+	<h1>首页 > 留言管理 > 修改留言</h1>
+    <h2>
+    	<div class="h2_left">
+        	<a href="{:url()}" class="whole">全部</a>
+        	<a href="javascript:void(0);" class="f5" onclick="f5();">刷新</a>
+            <a href="javascript:void(0);" onclick='ToUrl("{:url('News/add')}");' class="uclass">列表</a>
+            <a href="javascript:void(0);" onclick='ToUrl("{:url('News/classindex')}");' class="uclass">分类</a>
+            <a href="javascript:history.back();" class="Retreat">后退</a>
+            <a href="javascript:history.go(1);" class="Advance">前进</a>
+        </div>
+    </h2>
+    <form action="{:url('News/edit_do')}" method="post">
+    <dl id="cdl">
+    	<dd>
+        	<span class="dd_left">项目分类：</span>
+            <span class="dd_right">
+            	<select class="select" name="Sid">
+                	{volist name="clist" id="vo"}
+                	<option value="{$vo.ID}" {if condition="$vo.ID eq $result['Sid']"}selected{/if} >{$vo.ClassName}</option>
+                    {/volist}
+                </select>
+            </span>
+        </dd>
+        <dd>
+            <span class="dd_left">姓名：</span>
+            <span class="dd_right">
+                <input type="text" class="name" name="name" value="{$result['name']}" /><font>* 你还可以输入<span>20</span>个字符</font>
+            </span>
+            
+        </dd>
+        <dd>
+            <span class="dd_left">手机号：</span>
+            <span class="dd_right">
+                <input type="text" class="phone" name="phone" value="{$result['phone']}" /><font>* 你还可以输入<span>11</span>个字符</font>
+            </span>
+            
+        </dd>
+                <dd>
+            <span class="dd_left">QQ/微信/Email：</span>
+            <span class="dd_right">
+                <input type="text" class="contact" name="contact" value="{$result['contact']}" /><font>* 你还可以输入<span>40</span>个字符</font>
+            </span>
+            
+        </dd>
+          </dd>
+                <dd>
+            <span class="dd_left">地址：</span>
+            <span class="dd_right">
+                <input type="text" class="ADDR" name="ADDR" value="{$result['ADDR']}" /><font>* 你还可以输入<span>35</span>个字符</font>
+            </span>
+            
+        </dd>
+        <dd style="visibility:hidden">
+        	<span class="dd_left">排序ID：</span>
+            <span class="dd_right">
+            	<input type="text" class="dtext" name="Sortid" value="{$result['Sortid']}"/><font>排序ID</font>
+            </span>
+        </dd>
+        <dd>
+        	<span class="dd_left">留言内容：</span>
+            <span class="dd_right">
+            	<textarea class="textarea" name="Content">{$result['Content']}</textarea>
+            </span>
+            <font>* 你还可以输入<span>200</span>个字符</font>
+        </dd>
+        <input type="hidden" name="ID" value="{$result['ID']}" />
+    	<dd>
+        <input type="submit" value="提交" class="submit" /></dd>
+    </dl>
+    </form>
+</div>
+</body>
+</html>
